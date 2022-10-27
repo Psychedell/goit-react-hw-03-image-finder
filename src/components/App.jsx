@@ -10,12 +10,7 @@ export class App extends Component {
     // page: 1,
   };
 
-  componentDidMount() {
-    // fetchImages(this.state.imageName, this.state.page).then(response => {
-    //   this.setState({ imageName: response });
-    //   console.log(this.state.imageName.hits);
-    // });
-  }
+  componentDidMount() {}
 
   componentDidUpdate() {}
 
