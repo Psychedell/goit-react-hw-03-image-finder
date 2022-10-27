@@ -7,7 +7,6 @@ import ImageGallery from './ImageGallery/ImageGallery';
 export class App extends Component {
   state = {
     imageName: '',
-    // page: 1,
   };
 
   componentDidMount() {}
@@ -26,11 +25,12 @@ export class App extends Component {
         <ImageGallery searchName={this.state.imageName} />
         <Toaster
           toastOptions={{
-            duration: 1500,
+            duration: 2500,
             style: {
               background: '#fff',
               color: '#3f51b5',
-              marginTop: 60,
+              marginTop: 30,
+              marginRight: 50,
             },
           }}
           position="top-right"
