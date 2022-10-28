@@ -1,7 +1,9 @@
-export const ImageGallaryItem = ({ webformatURL, tags }) => {
+import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
+
+export const ImageGallaryItem = ({ webformatURL, tags, onImageClick }) => {
   return (
-    <li className="gallery-item">
-      <img src={webformatURL} alt={tags} />
-    </li>
+    <GalleryItem>
+      <GalleryItemImage src={webformatURL} alt={tags} onClick={onImageClick} />
+    </GalleryItem>
   );
 };
