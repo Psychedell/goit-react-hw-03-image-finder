@@ -1,28 +1,136 @@
 import { Component } from 'react';
 import { WrapperApp } from './App.styled';
 import SearchBar from './Searchbar/Searchbar';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import ImageGallery from './ImageGallery/ImageGallery';
+import fetchImages from 'services/api';
+import MyLoader from 'components/Loader/Loader';
+import Modal from 'components/Modal/Modal';
+import { Button } from 'components/Button/Button';
 
 export class App extends Component {
   state = {
     imageName: '',
+    resultList: [],
+    page: 1,
+    totalPages: 0,
+    loading: false,
+    isVisible: false,
+    showModal: false,
+    modalImage: '',
+    error: 'error',
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.setState({ resultList: [] });
+  }
 
-  componentDidUpdate() {}
+  // componentDidUpdate(_, prevState) {
+  //   const { imageName, page } = this.state;
+
+  //   if (prevState.imageName !== imageName || prevState.page !== page) {
+  //     this.setState({ loading: true, resultList: [], page: 1 });
+
+  //     fetchImages(imageName, page)
+  //       .then(data => {
+  //         const { totalHits, hits } = data;
+
+  //         if (!hits.length) {
+  //           return toast.error(
+  //             'There is no images found with this search request'
+  //           );
+  //         }
+
+  //         this.setState(prevState => ({
+  //           resultList: [...prevState.resultList, ...hits],
+  //           totalPages: Math.ceil(totalHits / 12),
+  //           isVisible: totalHits / 12 > page,
+  //         }));
+  //       })
+  //       .catch(error => this.setState({ error }))
+  //       .finally(() => this.setState({ loading: false }));
+  //   }
+  // }
+
+  componentDidUpdate(_, prevState) {
+    const { imageName, page, resultList } = this.state;
+
+    if (prevState.imageName !== imageName) {
+      this.setState({ loading: true, resultList: [], page: 1 });
+
+      fetchImages(imageName, page)
+        .then(data => {
+          const { totalHits, hits } = data;
+
+          if (!hits.length) {
+            return toast.error(
+              'There is no images found with this search request'
+            );
+          }
+
+          this.setState({
+            resultList: hits,
+            totalPages: Math.ceil(totalHits / 12),
+            isVisible: totalHits / 12 > this.state.page,
+          });
+        })
+        .catch(error => this.setState({ error }))
+        .finally(() => this.setState({ loading: false }));
+    }
+
+    if (prevState.page !== page) {
+      fetchImages(imageName, page).then(data => {
+        const { hits } = data;
+        this.setState({
+          resultList: [...resultList, ...hits],
+        });
+      });
+    }
+  }
 
   handleFormSubmit = imageName => {
     this.setState({ imageName });
   };
 
+  onImageClick = event => {
+    const openImage = this.state.resultList.find(
+      image => image.webformatURL === event.currentTarget.src
+    ).largeImageURL;
+
+    this.setState({
+      modalImage: openImage,
+      showModal: true,
+    });
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  };
+
+  loadMore = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
+  };
+
   render() {
+    const {
+      imageName,
+      loading,
+      isVisible,
+      page,
+      totalPages,
+      resultList,
+      showModal,
+      modalImage,
+    } = this.state;
+
     return (
       <>
         <SearchBar onSubmit={this.handleFormSubmit} />
         <WrapperApp></WrapperApp>
-        <ImageGallery searchName={this.state.imageName} />
+        <ImageGallery resultList={resultList} onImageClick={this.onImageClick}>
+          {loading && <MyLoader />}
+          {!imageName && <p>No results yet.</p>}
+        </ImageGallery>
         <Toaster
           toastOptions={{
             duration: 2500,
@@ -35,6 +143,12 @@ export class App extends Component {
           }}
           position="top-right"
         />
+        {isVisible && totalPages > page && (
+          <Button onLoadMore={this.loadMore} />
+        )}
+        {showModal && (
+          <Modal modalImage={modalImage} closeModal={this.toggleModal} />
+        )}
       </>
     );
   }
