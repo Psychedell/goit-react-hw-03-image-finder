@@ -27,7 +27,7 @@ export default class ImageGallery extends Component {
     const prevName = prevProps.searchName;
     const nextName = this.props.searchName;
 
-    if (prevName !== nextName) {
+    if (prevName !== nextName || prevState.page !== this.state.page) {
       this.setState({ loading: true, resultList: [], page: 1 });
 
       fetchImages(nextName, this.state.page)
@@ -41,7 +41,7 @@ export default class ImageGallery extends Component {
           }
 
           this.setState({
-            resultList: hits,
+            resultList: [...this.state.resultList, ...hits],
             totalPages: Math.ceil(totalHits / 12),
             isVisible: totalHits / 12 > this.state.page,
           });
@@ -50,14 +50,14 @@ export default class ImageGallery extends Component {
         .finally(() => this.setState({ loading: false }));
     }
 
-    if (prevState.page !== this.state.page) {
-      fetchImages(nextName, this.state.page).then(data => {
-        const { hits } = data;
-        this.setState({
-          resultList: [...this.state.resultList, ...hits],
-        });
-      });
-    }
+    // if (prevState.page !== this.state.page) {
+    //   fetchImages(nextName, this.state.page).then(data => {
+    //     const { hits } = data;
+    //     this.setState({
+    //       resultList: [...this.state.resultList, ...hits],
+    //     });
+    //   });
+    // }
   }
 
   onImageClick = event => {
