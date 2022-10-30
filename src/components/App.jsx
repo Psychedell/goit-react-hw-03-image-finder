@@ -4,9 +4,10 @@ import SearchBar from './Searchbar/Searchbar';
 import toast, { Toaster } from 'react-hot-toast';
 import ImageGallery from './ImageGallery/ImageGallery';
 import fetchImages from 'services/api';
-import MyLoader from 'components/Loader/Loader';
 import Modal from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
+import MyLoader from 'components/Loader/Loader';
+// import MyLoader from './Loader/Loader';
 
 export class App extends Component {
   state = {
@@ -25,8 +26,9 @@ export class App extends Component {
     this.setState({ resultList: [] });
   }
 
+  // Проверить почему не работает...
   // componentDidUpdate(_, prevState) {
-  //   const { imageName, page } = this.state;
+  //   const { imageName, page, resultList } = this.state;
 
   //   if (prevState.imageName !== imageName || prevState.page !== page) {
   //     this.setState({ loading: true, resultList: [], page: 1 });
@@ -41,11 +43,11 @@ export class App extends Component {
   //           );
   //         }
 
-  //         this.setState(prevState => ({
-  //           resultList: [...prevState.resultList, ...hits],
+  //         this.setState({
+  //           resultList: [...resultList, ...hits],
   //           totalPages: Math.ceil(totalHits / 12),
   //           isVisible: totalHits / 12 > page,
-  //         }));
+  //         });
   //       })
   //       .catch(error => this.setState({ error }))
   //       .finally(() => this.setState({ loading: false }));
@@ -126,23 +128,26 @@ export class App extends Component {
     return (
       <>
         <SearchBar onSubmit={this.handleFormSubmit} />
-        <WrapperApp></WrapperApp>
-        <ImageGallery resultList={resultList} onImageClick={this.onImageClick}>
-          {loading && <MyLoader />}
-          {!imageName && <p>No results yet.</p>}
-        </ImageGallery>
-        <Toaster
-          toastOptions={{
-            duration: 2500,
-            style: {
-              background: '#fff',
-              color: '#3f51b5',
-              marginTop: 30,
-              marginRight: 50,
-            },
-          }}
-          position="top-right"
-        />
+        {loading && <MyLoader />}
+        {!imageName && <p>No results yet.</p>}
+        <WrapperApp>
+          <ImageGallery
+            resultList={resultList}
+            onImageClick={this.onImageClick}
+          />
+          <Toaster
+            toastOptions={{
+              duration: 2500,
+              style: {
+                background: '#fff',
+                color: '#3f51b5',
+                marginTop: 30,
+                marginRight: 50,
+              },
+            }}
+            position="top-right"
+          />
+        </WrapperApp>
         {isVisible && totalPages > page && (
           <Button onLoadMore={this.loadMore} />
         )}
